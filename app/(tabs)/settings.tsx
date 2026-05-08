@@ -1,3 +1,4 @@
+import { pickPDF } from '@/snippets/native/document-picker';
 import { pickImage, takePhoto } from '@/snippets/native/image-picker';
 import { getCurrentLocation } from '@/snippets/native/location';
 import { generatePDF } from '@/snippets/native/pdf';
@@ -12,6 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+import { uploadPDF } from '@/features/tasks/api/upload-pdf';
 
 export default function SettingsScreen() {
   const [enabled, setEnabled] =
@@ -89,6 +92,34 @@ const handleTakePhoto = async () => {
   }
 };
 
+const handleUploadPDF = async () => {
+  try {
+    const result = await pickPDF();
+
+    if (result.canceled) {
+      return;
+    }
+
+    const file =
+      result.assets[0];
+
+    const url =
+      await uploadPDF(file);
+
+    Alert.alert(
+      'PDF subido',
+      url
+    );
+  } catch (error) {
+    console.error(error);
+
+    Alert.alert(
+      'Error',
+      'No se pudo subir el PDF'
+    );
+  }
+};
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>
@@ -161,6 +192,17 @@ const handleTakePhoto = async () => {
         Tomar Foto
       </Text>
     </TouchableOpacity>
+
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleUploadPDF}
+      >
+        <Text style={styles.buttonText}>
+          Subir PDF
+        </Text>
+      </TouchableOpacity>
+
     </SafeAreaView>
   );
 }
